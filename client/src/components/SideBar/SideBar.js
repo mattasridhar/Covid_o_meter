@@ -1,6 +1,7 @@
 // Core imports
 import React from "react";
 import Localize from "../../i18n/Localize";
+import { constants } from "../App/constants";
 
 // DOM imports
 import List from "@material-ui/core/List";
@@ -13,7 +14,6 @@ import Divider from "@material-ui/core/Divider";
 import IconButton from "@material-ui/core/IconButton";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
 import uiStyles from "../App/UIStyles";
-import { constants } from "../App/constants";
 
 const SideBar = ({ handleSidebarToggling, alterCanvas }) => {
   const myStyles = uiStyles();

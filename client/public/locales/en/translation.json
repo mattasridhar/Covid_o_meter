@@ -1,10 +1,14 @@
 {
   "covidTitle": "Covid-O-Meter",
   "bank": "Bank",
+  "loading": "Please wait while the Content loads. It may take a while. Kindly be patient.",
+  "loadingMap": "Loading World Map...",
   "settings": "Settings",
-  "localeTitle": "Select the default language:",
+  "localeTitle": "Select the default language: ",
   "english": "English",
-  "french": "French",
-  "german": "German",
-  "hindi": "Hindi"
+  "french": "Français",
+  "german": "Deutsche",
+  "hindi": "हिन्दी",
+  "worldMapTitle": "World Map Plot",
+  "copyright": "Dataset Copyright © "
 }

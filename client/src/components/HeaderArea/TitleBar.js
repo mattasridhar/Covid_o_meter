@@ -1,15 +1,16 @@
 // Core imports
 import React from "react";
-import Localize from "../../i18n/Localize";
 
 // DOM imports
 import Toolbar from "@material-ui/core/Toolbar";
 import IconButton from "@material-ui/core/IconButton";
 import MenuIcon from "@material-ui/icons/Menu";
 import Typography from "@material-ui/core/Typography";
-import Badge from "@material-ui/core/Badge";
-import NotificationsIcon from "@material-ui/icons/Notifications";
 import uiStyles from "../App/UIStyles";
+import logo_white from "../App/logo_white.svg";
+
+// Custom component imports
+import Localize from "../../i18n/Localize";
 
 const TitleBar = ({ toggleSidebar, handleSidebarToggling }) => {
   const myStyles = uiStyles();
@@ -35,12 +36,9 @@ const TitleBar = ({ toggleSidebar, handleSidebarToggling }) => {
           className={myStyles.title}
         >
           <Localize id="covidTitle" />
+          {"  "}
+          <img src={logo_white} alt="Covid-logo" />
         </Typography>
-        <IconButton color="inherit">
-          <Badge badgeContent={4} color="secondary">
-            <NotificationsIcon />
-          </Badge>
-        </IconButton>
       </Toolbar>
     </>
   );

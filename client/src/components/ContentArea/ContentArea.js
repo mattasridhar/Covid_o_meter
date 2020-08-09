@@ -5,10 +5,12 @@ import { constants } from "../App/constants";
 // DOM imports
 import uiStyles from "../App/UIStyles";
 import Container from "@material-ui/core/Container";
+import Box from "@material-ui/core/Box";
 
 // Custom component imports
 import Bank from "../Bank/Bank";
 import Settings from "../Settings/Settings";
+import Copyrights from "../Canvas/Copyrights";
 
 // Custom components imports
 
@@ -30,6 +32,9 @@ const ContentArea = ({ canvasContext }) => {
     <>
       <main className={myStyles.content}>
         <div className={myStyles.appBarSpacer} />
+        <Box pt={4}>
+          <Copyrights />
+        </Box>
         <Container maxWidth="lg" className={myStyles.container}>
           {renderCanvas()}
         </Container>

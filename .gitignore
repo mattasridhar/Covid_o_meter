@@ -29,3 +29,6 @@ yarn-error.log*
 server/images/.DS_Store
 server/.DS_Store
 .DS_Store
+.vscode/.ropeproject
+.vscode/.ropeproject/config.py
+.vscode/.ropeproject/objectdb

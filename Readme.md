@@ -1,6 +1,6 @@
 Covid-O-Meter: A Simple Application which fetches the Data and plots them.
 
-TABLE OF CONTENTS\
+TABLE OF CONTENTS
 
  <pre> INTRODUCTION </pre>
 <pre> SPECIFICATIONS </pre>
@@ -9,16 +9,17 @@ TABLE OF CONTENTS\
 <pre> INSTALLATION NOTES </pre>
 <pre> ABOUT THE APPLICATION </pre>
 
-INTRODUCTION\
+INTRODUCTION
+
  This application fetches the Real-time dataset and plots them in the server. Once plotting is completed, the visualization is sent to the Client. The application can also be visualized in 4 different languages.
 <br><br>
 <b>Check out this video to see the demo.</b>
 
-[![](https://img.youtu.be/_H7oRzsfkLw/0.jpg)](https://youtu.be/_H7oRzsfkLw)
+[![](http://img.youtube.com/vi/_H7oRzsfkLw/0.jpg)](http://www.youtube.com/watch?v=_H7oRzsfkLw)
 
 <pre><i>If the above video doesn't seem to work, you can find the same clip of Demo at (~/readme_figs/DemoVideos/CovidOMeterDemo.mp4) location.</i></pre>
 
-SPECIFICATIONS\
+SPECIFICATIONS
 
  <pre>The application is a Simple application consisting of a Python server and a React client:</pre>
 <ul>
@@ -42,7 +43,8 @@ SPECIFICATIONS\
 <li> Change the default language across the application upon user selection.</li>
 </ul>
 
-SOFTWARES REQUIRED\
+SOFTWARES REQUIRED
+
  The software that are needed for the application to be edited or executed
 
 <ul>
@@ -52,7 +54,8 @@ SOFTWARES REQUIRED\
 <li> ‘build tools’ --> YARN, NPM</li>
 </ul>
 
-SOURCE CODE\
+SOURCE CODE
+
  The Source code for the application is in the ‘Covid_o_meter’ folder
 
 <ul>
@@ -60,7 +63,8 @@ SOURCE CODE\
 <li> ‘client’ --> This folder has the source code for the UI client.</li>
 </ul>
 
-INSTALLATION NOTES\
+INSTALLATION NOTES
+
  All the execution of this application will be done via command prompt terminal. <b>Assuming you have Node, React, npm/yarn and Python (version >3.0) already installed</b>
 
 <ol type="A">
@@ -79,7 +83,8 @@ INSTALLATION NOTES\
 	</ul>
 	</ol>
 
-ABOUT THE APPLICATION\
+ABOUT THE APPLICATION
+
  This application opens up a window after you have installed and initiated the step given in the ‘INSTALLATION NOTES’ section.
 The application loads and opens up a Tab window in CHROME (or your Default Browser) and a Circular Loading is displayed until the API fetches the GIF information. Figure 1 shows the screen when the application is loaded.
 

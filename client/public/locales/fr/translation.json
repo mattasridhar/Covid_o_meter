@@ -1,10 +1,14 @@
 {
-  "covidTitle": "Covid-O-Meter-FR",
-  "bank": "fr_Bank",
-  "settings": "fr_Settings",
-  "localeTitle": "fr_Select the default language:",
-  "english": "fr_english",
-  "french": "fr_French",
-  "german": "fr_German",
-  "hindi": "fr_Hindi"
+  "covidTitle": "Covid-O-Mètre",
+  "bank": "Banque",
+  "loading": "Veuillez patienter pendant le chargement du contenu. Cela peut prendre un certain temps. Veuillez être patient.",
+  "loadingMap": "Chargement de la carte du monde ...",
+  "settings": "Paramètres",
+  "localeTitle": "Sélectionnez la langue par défaut: ",
+  "english": "English",
+  "french": "Français",
+  "german": "Deutsche",
+  "hindi": "हिन्दी",
+  "worldMapTitle": "Tracé de la carte du monde",
+  "copyright": "Copyright de l'ensemble de données © "
 }

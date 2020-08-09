@@ -3,69 +3,48 @@ import {
   fetchCountriesRequest,
   fetchCountriesSuccess,
   fetchCountriesFailure,
+  fetchCountriesMapRequest,
+  fetchCountriesMapSuccess,
+  fetchCountriesMapFailure,
 } from "../actions/countries";
 
-// axios.defaults.headers.post["Content-Type"] = "application/json;charset=utf-8";
-// axios.defaults.headers.post["Access-Control-Allow-Origin"] = "*";
-/* export const fetchCountries = () => {
+// Fetches the Gif from the Server
+export const fetchCountriesMap = () => {
   return (dispatch) => {
-    dispatch(fetchCountriesRequest());
-    axios
-      .get("http://localhost:2393/api/hello/?format=json")
-      .then((response) => {
-        console.log("Thunk country resp: ", response);
-        dispatch(fetchCountriesSuccess(["SRIDHAR"]));
-      })
-      .catch((error) => {
-        console.log("Thunk error: ", error);
-        dispatch(fetchCountriesFailure("error SRI"));
-      });
-  };
-}; */
-
-/* export const fetchCountries = () => {
-  return (dispatch) => {
-    dispatch(fetchCountriesRequest());
+    dispatch(fetchCountriesMapRequest());
     axios({
       url: "http://localhost:2393/api/visualize/",
       method: "GET",
-      // responseType: "blob",
     })
       .then((response) => {
-        // const file = new Blob([response.data], { type: "image/gif" });
-        // const url = URL.createObjectURL(blob);
-        console.log("Thunk country resp: ", response);
-        // console.log("Think FileSize: ", file.size); // !!! this line
-        dispatch(fetchCountriesSuccess([response.data]));
+        console.log("Fetching the World Map Visualization GIF.");
+        dispatch(fetchCountriesMapSuccess(response.data));
       })
       .catch((error) => {
-        console.log("Thunk error: ", error);
-        dispatch(fetchCountriesFailure("error SRI"));
+        console.log(
+          "Fetching the World Map Visualization GIF Failed with error: \n",
+          error
+        );
+        dispatch(fetchCountriesMapFailure(error));
       });
   };
-}; */
+};
 
-export const fetchCountries = () => {
+// Fetches the list of Covid-19 infected countries list from the Server
+export const fetchCountriesList = () => {
   return (dispatch) => {
     dispatch(fetchCountriesRequest());
-    setTimeout(() => {
-      console.log("Waiting...");
-    }, 2000);
     axios({
       url: "http://localhost:2393/api/countriesList/",
       method: "GET",
-      // responseType: "blob",
     })
       .then((response) => {
-        // const file = new Blob([response.data], { type: "image/gif" });
-        // const url = URL.createObjectURL(blob);
-        console.log("Thunk countryList resp: ", response);
-        // console.log("Think FileSize: ", file.size); // !!! this line
-        dispatch(fetchCountriesSuccess([response.data]));
+        console.log("Fetching the List of countries.", response);
+        dispatch(fetchCountriesSuccess(response.data));
         clearTimeout();
       })
       .catch((error) => {
-        console.log("Thunk error: ", error);
+        console.log("Fetching the Countries List Failed with error: \n", error);
         dispatch(fetchCountriesFailure("error SRI"));
       });
   };

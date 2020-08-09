@@ -32,3 +32,5 @@ server/.DS_Store
 .vscode/.ropeproject
 .vscode/.ropeproject/config.py
 .vscode/.ropeproject/objectdb
+server/assets/images/*.png
+server/assets/covid_animation.gif

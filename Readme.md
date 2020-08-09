@@ -16,7 +16,7 @@ INTRODUCTION\
 
 [![](https://img.youtu.be/_H7oRzsfkLw/0.jpg)](https://youtu.be/_H7oRzsfkLw)
 
-<pre><i>If the above video doesn't seem to work, you can find the same clip of Demo at (~/readme_figs/DemoVideos/CovidOMeterDemo.mov) location.</i></pre>
+<pre><i>If the above video doesn't seem to work, you can find the same clip of Demo at (~/readme_figs/DemoVideos/CovidOMeterDemo.mp4) location.</i></pre>
 
 SPECIFICATIONS\
 

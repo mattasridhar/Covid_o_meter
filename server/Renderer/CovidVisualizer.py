@@ -1,3 +1,4 @@
+from pygifsicle import optimize
 from datetime import datetime
 import pandas as pd
 import numpy as np
@@ -47,20 +48,8 @@ class CovidVisualizer:
         self.timeSeriesDataset = self.covid19_dataset
         self.timeSeriesDataset = self.timeSeriesDataset.set_index('Date')
 
-        self.confirmedCases = self.timeSeriesDataset.groupby(
-            ['Date']).sum()['Confirmed'].reset_index()
-
-        self.confirmedCases = self.confirmedCases.set_index('Date')
-
-        self.recoveredCases = self.timeSeriesDataset.groupby(
-            ['Date']).sum()['Recovered'].reset_index()
-
-        self.recoveredCases = self.recoveredCases.set_index('Date')
-
-        self.deathCases = self.timeSeriesDataset.groupby(
-            ['Date']).sum()['Deaths'].reset_index()
-
-        self.deathCases = self.deathCases.set_index('Date')
+        self.radialDataset = self.covid19_dataset
+        self.radialDataset = self.radialDataset.set_index('Date')
 
     def getCountriesList(self):
         # Data Cleaning. Replacing 'Blanks with No_country'
@@ -133,7 +122,6 @@ class CovidVisualizer:
         fig_dimension = 96
         plt.figure(figsize=(2600/fig_dimension, 1800 /
                             fig_dimension), dpi=fig_dimension)
-
         # Creating the Base Map
         base_map = Basemap(llcrnrlon=-180, llcrnrlat=-65,
                            urcrnrlon=180, urcrnrlat=80)
@@ -146,7 +134,7 @@ class CovidVisualizer:
         # Plot point on World Map
         base_map.scatter(covid_to_plot['Longitude'],
                          covid_to_plot['Latitude'],
-                         s=covid_to_plot[caseType] * 4,
+                         s=covid_to_plot[caseType],
                          alpha=0.4,
                          c=covid_to_plot['labels_enc'],
                          cmap="Set1")
@@ -171,13 +159,15 @@ class CovidVisualizer:
             for image_name in imageFilenames:
                 self.images_list.append(imageio.imread(image_name))
             imageio.mimsave(gifFilename, self.images_list)
-            print('Creationg of Gif completed.')
+            optimize(gifFilename)  # optimize and reduce the gif size
+            print('Creation of Gif completed.')
         except:
             print('Error while creating the GIF.')
 
     # For Each Date Create the respective world heat plot images and then generate the gif of Covid data
     def visualizeData(self, countriesList):
         try:
+            print('Initiated Creation of World Heat Map Plot')
             for entry in self.sorted_dates:
                 if len(countriesList) == 1:
                     covid_record = self.covid19_dataset[self.covid19_dataset['Country']
@@ -215,12 +205,7 @@ class CovidVisualizer:
             self.generateGif(self.image_filename_list,
                              self.currentPath + '/assets/worldHeatPlot_animation.gif')
 
-            # Create the Gif using the PNG images created
-            print('\n Creating gif using non-DEG')
-            for image_name in self.image_filename_list:
-                self.images_list.append(imageio.imread(image_name))
-            imageio.mimsave(
-                self.currentPath + '/assets/worldHeatPlot_animation.gif', self.images_list)
+            print('World Heat Map Plotting Completed')
             return True
         except:
             print('Failed to Visualize the Data')
@@ -228,39 +213,50 @@ class CovidVisualizer:
 
     # Plotting the Time Series
     def plotTimeSeries(self):
+        # Reset Counters
         self.image_filename_list = []
         self.processed_image_count = 0
 
+        # Gather requied Data
+        confirmedCases = self.timeSeriesDataset.groupby(
+            ['Date']).sum()['Confirmed'].reset_index()
+        confirmedCases = confirmedCases.set_index('Date')
+
+        recoveredCases = self.timeSeriesDataset.groupby(
+            ['Date']).sum()['Recovered'].reset_index()
+        recoveredCases = recoveredCases.set_index('Date')
+
+        deathCases = self.timeSeriesDataset.groupby(
+            ['Date']).sum()['Deaths'].reset_index()
+        deathCases = deathCases.set_index('Date')
+
         # gathering min and max values for X axis
-        xMinValue = self.confirmedCases.index.min()
-        xMaxValue = self.confirmedCases.index.max()
+        xMinValue = confirmedCases.index.min()
+        xMaxValue = confirmedCases.index.max()
 
         # gathering the min value for Y axis
         yMinValue = 0
-        confirmedCasesMin = self.confirmedCases['Confirmed'].min()
-        recoveredCasesMin = self.recoveredCases['Recovered'].min()
-        deathsCasesMin = self.deathCases['Deaths'].min()
+        confirmedCasesMin = confirmedCases['Confirmed'].min()
+        recoveredCasesMin = recoveredCases['Recovered'].min()
+        deathsCasesMin = deathCases['Deaths'].min()
         yMinValue = max([confirmedCasesMin,
                          recoveredCasesMin, deathsCasesMin])
 
         # gathering the max value for Y axis
-        confirmedCasesMax = self.confirmedCases['Confirmed'].max()
-        recoveredCasesMax = self.recoveredCases['Recovered'].max()
-        deathsCasesMax = self.deathCases['Deaths'].max()
+        confirmedCasesMax = confirmedCases['Confirmed'].max()
+        recoveredCasesMax = recoveredCases['Recovered'].max()
+        deathsCasesMax = deathCases['Deaths'].max()
         yMaxValue = max([confirmedCasesMax, recoveredCasesMax, deathsCasesMax])
 
-        xTextLoc = '2020-03-19'
-        yTextLoc = self.confirmedCases['Confirmed'].max()
-
-        print('Initiated Creation of Time Series Plotting.')
+        print('Initiated Creation of Time Series Plot.')
 
         for end in self.sorted_dates:
             endDate = str(end).replace(' 00:00:00', '')
-            totalConfirmed = self.confirmedCases.loc[endDate:endDate, 'Confirmed'].max(
+            totalConfirmed = confirmedCases.loc[endDate:endDate, 'Confirmed'].max(
             )
-            totalRecovered = self.recoveredCases.loc[endDate:endDate, 'Recovered'].max(
+            totalRecovered = recoveredCases.loc[endDate:endDate, 'Recovered'].max(
             )
-            totalDeaths = self.deathCases.loc[endDate:endDate, 'Deaths'].max()
+            totalDeaths = deathCases.loc[endDate:endDate, 'Deaths'].max()
 
             fig_dimension = 96
             plt.figure(figsize=(2600/fig_dimension, 1800 /
@@ -268,13 +264,13 @@ class CovidVisualizer:
 
             fig, ax = plt.subplots()
 
-            ax.plot(self.confirmedCases.loc[:endDate, 'Confirmed'], color='blue',
+            ax.plot(confirmedCases.loc[:endDate, 'Confirmed'], color='blue',
                     linestyle='-', linewidth=0.5, label='Confirmed: ' + str(totalConfirmed))
 
-            ax.plot(self.deathCases.loc[:endDate, 'Deaths'], color='red',
+            ax.plot(deathCases.loc[:endDate, 'Deaths'], color='red',
                     markersize=8, linestyle='-', label='Death: ' + str(totalDeaths))
 
-            ax.plot(self.recoveredCases.loc[:endDate, 'Recovered'], color='green',
+            ax.plot(recoveredCases.loc[:endDate, 'Recovered'], color='green',
                     markersize=8, linestyle='-', label='Recovered: ' + str(totalRecovered))
 
             fig.autofmt_xdate()
@@ -297,3 +293,86 @@ class CovidVisualizer:
                          '/assets/covid_timeSeries_animation.gif')
 
         print('Time Series Plotting Completed.')
+
+    # Iterate through the countries list and create a plot gif for each country
+    def generateRadialChart(self, countriesList):
+        print('Initiated Creation of Radial Chart Plot.')
+        self.gif_readers_list = []
+        for countryName in countriesList:
+            self.image_filename_list = []
+            country_record = self.radialDataset.loc[self.radialDataset['Country'] == countryName]
+            country_confirmed = country_record[[
+                'Confirmed', 'Recovered', 'Deaths']]
+
+            self.plotRadialChart(country_confirmed, countryName)
+
+            gifFilename = self.currentPath + \
+                '/assets/covid_radialChart_animation_' + countryName + '.gif'
+            self.generateGif(self.image_filename_list, gifFilename)
+
+            print('Gif creation for ' + countryName + ' completed.')
+
+        print('RadialChart Plotting Completed.')
+
+    # Create the Radial Plot and save the images
+    def plotRadialChart(self, df, countryName):
+        self.processed_image_count = 0
+        confirmedMax = df['Confirmed'].max()
+        recoveredMax = df['Recovered'].max()
+        deathsMax = df['Deaths'].max()
+        for date in self.sorted_dates:
+            endDate = str(date).replace(' 00:00:00', '')
+            plt = self.createRings(
+                df.loc[endDate:endDate, 'Confirmed'], confirmedMax, df.loc[endDate:endDate, 'Recovered'], recoveredMax, df.loc[endDate:endDate, 'Deaths'], deathsMax, countryName, endDate)
+            self.processed_image_count += 1
+            processed_image_name = self.currentPath + '/assets/images/rc_img_' + \
+                str(self.processed_image_count) + '.png'
+            self.image_filename_list.append(processed_image_name)
+            plt.savefig(processed_image_name,
+                        bbox_inches='tight', pad_inches=0.5)
+
+    # Plot and form the Radial charts and return the plotted object
+    def createRings(self, confirmed_df_value, confirmedMax, recovered_df_value, recoveredMax, deaths_df_value, deathsMax, countryName, endDate):
+        # Creating Labels, PieSizes and Color gradient for the Pie plotting
+        confirmedLabels = ['Confirmed: ' +
+                           str(confirmed_df_value.max()), '']
+        recoveredLabels = ['Recovered: ' + str(recovered_df_value.max()), '']
+        deathsLabels = ['Deaths: ' + str(deaths_df_value.max()), '']
+
+        maxPieValue = max([confirmedMax, recoveredMax, deathsMax])
+        confirmedPieSizes = [confirmed_df_value,
+                             (maxPieValue-confirmed_df_value)]
+        recoveredPieSizes = [recovered_df_value,
+                             (maxPieValue-recovered_df_value)]
+        deathPieSizes = [deaths_df_value, (maxPieValue-deaths_df_value)]
+
+        confirmColor, recoverColor, deathColor = [
+            plt.cm.Blues, plt.cm.Greens, plt.cm.Reds]
+
+        fig_dimension = 96
+        plt.figure(figsize=(2600/fig_dimension, 1800 /
+                            fig_dimension), dpi=fig_dimension)
+        fig, ax = plt.subplots()
+        ax.axis('equal')
+
+        # Confirmed Ring Plot
+        confirmedPie, _ = ax.pie(confirmedPieSizes, radius=1.3,
+                                 labels=confirmedLabels, colors=[confirmColor(0.8), confirmColor(0.2)], textprops={'fontsize': 0})
+        plt.setp(confirmedPie, width=0.3, edgecolor='white')
+
+        # Recovered Ring Plot
+        recoveredPie, _ = ax.pie(recoveredPieSizes, radius=1.3-0.3, labels=recoveredLabels,
+                                 labeldistance=0.7, colors=[recoverColor(0.8), recoverColor(0.2)], textprops={'fontsize': 0})
+        plt.setp(recoveredPie, width=0.4, edgecolor='white')
+
+        # Death Ring Plot
+        deathsPie, _ = ax.pie(deathPieSizes, radius=1-0.3, labels=deathsLabels,
+                              labeldistance=0.7, colors=[deathColor(0.8), deathColor(0.2)], textprops={'fontsize': 0})
+        plt.setp(deathsPie, width=0.2, edgecolor='white')
+
+        ax.legend(loc='upper right', bbox_to_anchor=(0.75, 0.5, 0.5, 0.5))
+        plt.title(
+            'Covid-19 Radial Chart Plot - ' + countryName + '\n [ Date: ' + endDate + ' ]\n', fontsize=16)
+        plt.margins(0, 0)
+
+        return plt

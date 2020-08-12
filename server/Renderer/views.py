@@ -19,6 +19,8 @@ covid_visualizer = CovidVisualizer()
 countriesList = covid_visualizer.getCountriesList()
 covid_visualizer.appendCordinatesIntoDataFrame(countriesList)
 covid_visualizer.visualizeData([])
+covid_visualizer.plotTimeSeries()
+covid_visualizer.generateRadialChart(['China', 'India', 'Ireland'])
 print('\n\n****** You may now START the Client ******\n\n')
 
 
@@ -36,7 +38,7 @@ def PostCountryName(req):
 def GetCountryName(req):
     try:
         # ToDo: Plot and create the GIF using the single Country name
-        with open(r'images/covid_animation.gif', "rb") as image_file:
+        with open(r'images/worldHeatPlot_animation.gif', "rb") as image_file:
             image_data = base64.b64encode(image_file.read()).decode('utf-8')
             return HttpResponse(image_data)
     except ValueError as e:
@@ -62,14 +64,14 @@ def GetCountriesList(req):
 @api_view(['GET'])
 def GetCovidVisualization(req):
     try:
-        if not os.path.exists(r'assets/covid_animation.gif'):
+        if not os.path.exists(r'assets/worldHeatPlot_animation.gif'):
             countriesList = covid_visualizer.getCountriesList()
             covid_visualizer.appendCordinatesIntoDataFrame(countriesList)
             covid_visualizer.visualizeData([])
             print('Plotting Covid-19 Data and Visualizing Completed.')
 
-        if os.path.exists(r'assets/covid_animation.gif'):
-            with open(r'assets/covid_animation.gif', "rb") as image_file:
+        if os.path.exists(r'assets/worldHeatPlot_animation.gif'):
+            with open(r'assets/worldHeatPlot_animation.gif', "rb") as image_file:
                 image_data = base64.b64encode(
                     image_file.read()).decode('utf-8')
                 print('Covid-19 Data Visualizing Available.')

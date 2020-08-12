@@ -1,3 +1,4 @@
+from datetime import datetime
 import pandas as pd
 import numpy as np
 
@@ -36,11 +37,30 @@ class CovidVisualizer:
         # Fetching and sorting the data based on Date.
         self.url = 'https://raw.githubusercontent.com/datasets/covid-19/master/data/countries-aggregated.csv'
         self.covid19_dataset = pd.read_csv(self.url)
+
         self.covid19_dataset['Date'] = pd.to_datetime(
             self.covid19_dataset['Date'])
         self.covid19_dataset = self.covid19_dataset.sort_values(
             'Date', ascending=True)
         self.sorted_dates = sorted(list(set(self.covid19_dataset['Date'])))
+
+        self.timeSeriesDataset = self.covid19_dataset
+        self.timeSeriesDataset = self.timeSeriesDataset.set_index('Date')
+
+        self.confirmedCases = self.timeSeriesDataset.groupby(
+            ['Date']).sum()['Confirmed'].reset_index()
+
+        self.confirmedCases = self.confirmedCases.set_index('Date')
+
+        self.recoveredCases = self.timeSeriesDataset.groupby(
+            ['Date']).sum()['Recovered'].reset_index()
+
+        self.recoveredCases = self.recoveredCases.set_index('Date')
+
+        self.deathCases = self.timeSeriesDataset.groupby(
+            ['Date']).sum()['Deaths'].reset_index()
+
+        self.deathCases = self.deathCases.set_index('Date')
 
     def getCountriesList(self):
         # Data Cleaning. Replacing 'Blanks with No_country'
@@ -144,7 +164,18 @@ class CovidVisualizer:
 
         # plt.show()
 
-    # Creating the images and gif of Covid data
+    # Create the Gif using the PNG images created
+    def generateGif(self, imageFilenames, gifFilename):
+        self.images_list = []
+        try:
+            for image_name in imageFilenames:
+                self.images_list.append(imageio.imread(image_name))
+            imageio.mimsave(gifFilename, self.images_list)
+            print('Creationg of Gif completed.')
+        except:
+            print('Error while creating the GIF.')
+
+    # For Each Date Create the respective world heat plot images and then generate the gif of Covid data
     def visualizeData(self, countriesList):
         try:
             for entry in self.sorted_dates:
@@ -181,13 +212,88 @@ class CovidVisualizer:
 
                 self.processed_image_count += 1
 
+            self.generateGif(self.image_filename_list,
+                             self.currentPath + '/assets/worldHeatPlot_animation.gif')
+
             # Create the Gif using the PNG images created
+            print('\n Creating gif using non-DEG')
             for image_name in self.image_filename_list:
                 self.images_list.append(imageio.imread(image_name))
             imageio.mimsave(
-                self.currentPath + '/assets/covid_animation.gif', self.images_list)
-
+                self.currentPath + '/assets/worldHeatPlot_animation.gif', self.images_list)
             return True
         except:
             print('Failed to Visualize the Data')
             return False
+
+    # Plotting the Time Series
+    def plotTimeSeries(self):
+        self.image_filename_list = []
+        self.processed_image_count = 0
+
+        # gathering min and max values for X axis
+        xMinValue = self.confirmedCases.index.min()
+        xMaxValue = self.confirmedCases.index.max()
+
+        # gathering the min value for Y axis
+        yMinValue = 0
+        confirmedCasesMin = self.confirmedCases['Confirmed'].min()
+        recoveredCasesMin = self.recoveredCases['Recovered'].min()
+        deathsCasesMin = self.deathCases['Deaths'].min()
+        yMinValue = max([confirmedCasesMin,
+                         recoveredCasesMin, deathsCasesMin])
+
+        # gathering the max value for Y axis
+        confirmedCasesMax = self.confirmedCases['Confirmed'].max()
+        recoveredCasesMax = self.recoveredCases['Recovered'].max()
+        deathsCasesMax = self.deathCases['Deaths'].max()
+        yMaxValue = max([confirmedCasesMax, recoveredCasesMax, deathsCasesMax])
+
+        xTextLoc = '2020-03-19'
+        yTextLoc = self.confirmedCases['Confirmed'].max()
+
+        print('Initiated Creation of Time Series Plotting.')
+
+        for end in self.sorted_dates:
+            endDate = str(end).replace(' 00:00:00', '')
+            totalConfirmed = self.confirmedCases.loc[endDate:endDate, 'Confirmed'].max(
+            )
+            totalRecovered = self.recoveredCases.loc[endDate:endDate, 'Recovered'].max(
+            )
+            totalDeaths = self.deathCases.loc[endDate:endDate, 'Deaths'].max()
+
+            fig_dimension = 96
+            plt.figure(figsize=(2600/fig_dimension, 1800 /
+                                fig_dimension), dpi=fig_dimension)
+
+            fig, ax = plt.subplots()
+
+            ax.plot(self.confirmedCases.loc[:endDate, 'Confirmed'], color='blue',
+                    linestyle='-', linewidth=0.5, label='Confirmed: ' + str(totalConfirmed))
+
+            ax.plot(self.deathCases.loc[:endDate, 'Deaths'], color='red',
+                    markersize=8, linestyle='-', label='Death: ' + str(totalDeaths))
+
+            ax.plot(self.recoveredCases.loc[:endDate, 'Recovered'], color='green',
+                    markersize=8, linestyle='-', label='Recovered: ' + str(totalRecovered))
+
+            fig.autofmt_xdate()
+            ax.set_xlim([xMinValue,
+                         xMaxValue])
+            ax.set_ylim([yMinValue, yMaxValue])
+            ax.set_ylabel('Covid Cases Count')
+            ax.legend()
+            plt.title('Covid-19 Time Series Plot ', fontsize=16)
+
+            processed_image_name = self.currentPath + \
+                '/assets/images/ts_img_' + \
+                str(self.processed_image_count) + '.png'
+            self.image_filename_list.append(processed_image_name)
+            plt.savefig(processed_image_name,
+                        bbox_inches='tight', pad_inches=0.5)
+            self.processed_image_count += 1
+
+        self.generateGif(self.image_filename_list, self.currentPath +
+                         '/assets/covid_timeSeries_animation.gif')
+
+        print('Time Series Plotting Completed.')

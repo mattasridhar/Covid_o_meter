@@ -35,3 +35,6 @@ server/.DS_Store
 server/assets/images/*.png
 server/assets/covid_animation.gif
 server/assets/animation/*.gif
+*.pyc
+server/Renderer/__pycache__/*.pyc
+server/Renderer/__pycache__/*

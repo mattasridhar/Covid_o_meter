@@ -217,6 +217,15 @@ IF ERRORLEVEL 1 (
 	ECHO Failed to install %tagger% PYGIFSICLE library %tagger%
 	GOTO INSTALLATIONERROR
 )
+
+ECHO.
+ECHO %tagger% INSTALLING PYCOUNTRY! %tagger%
+ECHO %header%
+pip install pycountry
+IF ERRORLEVEL 1 (
+	ECHO Failed to install %tagger% PYCOUNTRY library %tagger%
+	GOTO INSTALLATIONERROR
+)
 GOTO EXITBATCH
 
 :MISSINGPYTHON

@@ -1,3 +1,7 @@
+import shutil
+import pycountry
+import seaborn as sns
+from mpl_toolkits.mplot3d import Axes3D
 from pygifsicle import optimize
 from datetime import datetime
 import pandas as pd
@@ -31,6 +35,7 @@ class CovidVisualizer:
         self.latitude_coords = []
         self.total_countries = 0
         self.countriesProcessed_ = 0
+        self.datesProcessed_ = 0
         self.sorted_dates = []
         self.processed_image_count = 0
         self.currentPath = os.getcwd()
@@ -50,6 +55,16 @@ class CovidVisualizer:
 
         self.radialDataset = self.covid19_dataset
         self.radialDataset = self.radialDataset.set_index('Date')
+
+        # Checking and creating folder structure for saving plots
+        self.imagesDir = self.currentPath + '/assets/images'
+        self.animationDir = self.currentPath + '/assets/animation'
+        if not os.path.exists(self.imagesDir):
+            os.mkdir(self.imagesDir)
+            print('Images Directory created.')
+        if not os.path.exists(self.animationDir):
+            os.mkdir(self.animationDir)
+            print('Animation Directory created.')
 
     def getCountriesList(self):
         # Data Cleaning. Replacing 'Blanks with No_country'
@@ -161,6 +176,9 @@ class CovidVisualizer:
             imageio.mimsave(gifFilename, self.images_list)
             optimize(gifFilename)  # optimize and reduce the gif size
             print('Creation of Gif completed.')
+            print('Clearing the /images directory')
+            shutil.rmtree(self.imagesDir)
+            os.mkdir(self.imagesDir)
         except:
             print('Error while creating the GIF.')
 
@@ -194,7 +212,7 @@ class CovidVisualizer:
                                                                                     'Latitude': 'mean'}).reset_index()
 
                 # Plot the Covid Information into PNG image files
-                processed_image_name = self.currentPath + '/assets/images/img_' + \
+                processed_image_name = self.imagesDir + '/img_' + \
                     str(self.processed_image_count) + '.png'
                 self.image_filename_list.append(processed_image_name)
                 self.getMappedPlot(covid_record, str(entry)[
@@ -203,7 +221,7 @@ class CovidVisualizer:
                 self.processed_image_count += 1
 
             self.generateGif(self.image_filename_list,
-                             self.currentPath + '/assets/worldHeatPlot_animation.gif')
+                             self.animationDir + '/worldHeatPlot_animation.gif')
 
             print('World Heat Map Plotting Completed')
             return True
@@ -281,23 +299,21 @@ class CovidVisualizer:
             ax.legend()
             plt.title('Covid-19 Time Series Plot ', fontsize=16)
 
-            processed_image_name = self.currentPath + \
-                '/assets/images/ts_img_' + \
+            processed_image_name = self.imagesDir + '/ts_img_' + \
                 str(self.processed_image_count) + '.png'
             self.image_filename_list.append(processed_image_name)
             plt.savefig(processed_image_name,
                         bbox_inches='tight', pad_inches=0.5)
             self.processed_image_count += 1
 
-        self.generateGif(self.image_filename_list, self.currentPath +
-                         '/assets/covid_timeSeries_animation.gif')
+        self.generateGif(self.image_filename_list,
+                         self.animationDir + '/covid_timeSeries_animation.gif')
 
         print('Time Series Plotting Completed.')
 
-    # Iterate through the countries list and create a plot gif for each country
+    # Iterate through the countries list and create a Radial plot gif for each country
     def generateRadialChart(self, countriesList):
         print('Initiated Creation of Radial Chart Plot.')
-        self.gif_readers_list = []
         for countryName in countriesList:
             self.image_filename_list = []
             country_record = self.radialDataset.loc[self.radialDataset['Country'] == countryName]
@@ -306,8 +322,8 @@ class CovidVisualizer:
 
             self.plotRadialChart(country_confirmed, countryName)
 
-            gifFilename = self.currentPath + \
-                '/assets/covid_radialChart_animation_' + countryName + '.gif'
+            gifFilename = self.animationDir + \
+                '/covid_radialChart_animation_' + countryName + '.gif'
             self.generateGif(self.image_filename_list, gifFilename)
 
             print('Gif creation for ' + countryName + ' completed.')
@@ -325,7 +341,7 @@ class CovidVisualizer:
             plt = self.createRings(
                 df.loc[endDate:endDate, 'Confirmed'], confirmedMax, df.loc[endDate:endDate, 'Recovered'], recoveredMax, df.loc[endDate:endDate, 'Deaths'], deathsMax, countryName, endDate)
             self.processed_image_count += 1
-            processed_image_name = self.currentPath + '/assets/images/rc_img_' + \
+            processed_image_name = self.imagesDir + '/rc_img_' + \
                 str(self.processed_image_count) + '.png'
             self.image_filename_list.append(processed_image_name)
             plt.savefig(processed_image_name,
@@ -357,22 +373,143 @@ class CovidVisualizer:
 
         # Confirmed Ring Plot
         confirmedPie, _ = ax.pie(confirmedPieSizes, radius=1.3,
-                                 labels=confirmedLabels, colors=[confirmColor(0.8), confirmColor(0.2)], textprops={'fontsize': 0})
+                                 labels=confirmedLabels, colors=[confirmColor(0.8), confirmColor(0.2)], textprops={'fontsize': 0, 'color': 'white'})
         plt.setp(confirmedPie, width=0.3, edgecolor='white')
 
         # Recovered Ring Plot
         recoveredPie, _ = ax.pie(recoveredPieSizes, radius=1.3-0.3, labels=recoveredLabels,
-                                 labeldistance=0.7, colors=[recoverColor(0.8), recoverColor(0.2)], textprops={'fontsize': 0})
+                                 labeldistance=0.7, colors=[recoverColor(0.8), recoverColor(0.2)], textprops={'fontsize': 0, 'color': 'white'})
         plt.setp(recoveredPie, width=0.4, edgecolor='white')
 
         # Death Ring Plot
         deathsPie, _ = ax.pie(deathPieSizes, radius=1-0.3, labels=deathsLabels,
-                              labeldistance=0.7, colors=[deathColor(0.8), deathColor(0.2)], textprops={'fontsize': 0})
+                              labeldistance=0.7, colors=[deathColor(0.8), deathColor(0.2)], textprops={'fontsize': 0, 'color': 'white'})
         plt.setp(deathsPie, width=0.2, edgecolor='white')
 
         ax.legend(loc='upper right', bbox_to_anchor=(0.75, 0.5, 0.5, 0.5))
         plt.title(
             'Covid-19 Radial Chart Plot - ' + countryName + '\n [ Date: ' + endDate + ' ]\n', fontsize=16)
         plt.margins(0, 0)
+
+        return plt
+
+    # Convert the Date into Integer
+    def getTransformedDate(self, date):
+        transformedDate = 19
+        onlyDate = str(date).replace(' 00:00:00', '')
+        noHyphes = str(onlyDate).replace('-', '')
+        noYear = str(noHyphes).replace('2020', '')
+        transformedDate = int(noHyphes)
+        return transformedDate
+
+    # Append the Country codes and Date9converted to numeric) information into the Data Frame
+    def append3DCodesIntoDataFrame(self, countries):
+        self.countriesProcessed_ = 0
+        self.datesProcessed_ = 0
+        countryCodes = []
+        transformedDate = []
+
+        # Returns the Numeric value of each country
+        numericMapping = {
+            country.name: country.numeric for country in pycountry.countries}
+
+        for country in countries:
+            if self.countriesProcessed_ % 50 == 0:
+                print('Processing Country Codes for remaining ' +
+                      str(self.total_countries - self.countriesProcessed_) + ' Countries.')
+
+            codecInfo = numericMapping.get(country)
+            if codecInfo == None:
+                codecInfo = 0
+
+            countryCodes.append(int(codecInfo))
+
+            self.countriesProcessed_ += 1
+
+        # Setting Day count since the start of Covid
+        for date in self.sorted_dates:
+            self.datesProcessed_ += 1
+            # self.getTransformedDate(date)
+            transformedDateInfo = self.datesProcessed_
+            transformedDate.append(transformedDateInfo)
+
+        countryCode_list = []
+        transformedDate_list = []
+        for i, r in self.covid19_dataset.iterrows():
+            country = r['Country']
+            index_list = self.countries_list.index(country)
+            countryCode_list.append(countryCodes[index_list])
+            transformedDate_list.append(transformedDate[index_list])
+
+        # Adding Co-ordinates back into Data frame
+        self.covid19_dataset['CountryCode'] = countryCode_list
+        self.covid19_dataset['TransformedDate'] = transformedDate_list
+        print('Appending additional information required for 3D Heat map for countries completed! \n')
+
+    # 3D plot for each category across all countries
+    def generate3DHeatMap(self, countriesList):
+        self.append3DCodesIntoDataFrame(countriesList)
+        self.heat3DDataset = self.covid19_dataset
+        self.heat3DDataset = self.heat3DDataset.set_index('Date')
+        # self.heat3DDataset = self.heat3DDataset.set_index('CountryCode')
+
+        self.processed_image_count = 0
+        self.image_filename_list = []
+
+        # Gather min&max for each axis
+        confirmMin = self.heat3DDataset['Confirmed'].min()
+        confirmMax = self.heat3DDataset['Confirmed'].max()
+
+        # Removing all entries without country codes
+        self.heat3DDataset = self.heat3DDataset[self.heat3DDataset.CountryCode != 0]
+
+        for date in self.sorted_dates:
+            endDate = str(date).replace(' 00:00:00', '')
+
+            plt = self.create3DHeatMap(
+                self.heat3DDataset.loc[endDate:endDate], confirmMin, confirmMax)
+            plt.title(
+                'Covid-19 3D Heat Map Plot \n [ Date: ' + endDate + ' ]\n', fontsize=16)
+
+            self.processed_image_count += 1
+            processed_image_name = self.imagesDir + '/hm_img_' + \
+                str(self.processed_image_count) + '.png'
+            self.image_filename_list.append(processed_image_name)
+            plt.savefig(processed_image_name,
+                        bbox_inches='tight', pad_inches=0.5)
+
+        gifFilename = self.animationDir + \
+            '/covid_3dHeatMap_animation.gif'
+        self.generateGif(self.image_filename_list, gifFilename)
+
+        print('3D HeatMap Plotting Completed.')
+
+    # plot the heat map for each date
+    def create3DHeatMap(self, df, confirmMin, confirmMax):
+        fig_dimension = 96
+        plt.figure(figsize=(2600/fig_dimension, 1800 /
+                            fig_dimension), dpi=fig_dimension)
+        fig, ax = plt.subplots()
+        ax.axis('equal')
+
+        fig = plt.figure()
+        ax = fig.gca(projection='3d')
+
+        ax.plot_trisurf(df['TransformedDate'], df['CountryCode'],
+                        df['Confirmed'], cmap=plt.cm.jet, linewidth=0.2, edgecolor='none')
+
+        ax.axes.set_zlim3d(confirmMin, confirmMax)
+
+        ax.set_title('CasesHere')
+        ax.set_xlabel('\nCountry Codes')
+        ax.set_ylabel('\n# of Covid-19 Days')
+        ax.set_zlabel('\nConfirmed Cases')
+
+        surf = ax.plot_trisurf(df['TransformedDate'], df['CountryCode'],
+                               df['Confirmed'], cmap=plt.cm.jet, linewidth=0.2)
+        cbar = fig.colorbar(surf, shrink=0.5, aspect=5)
+        cbar.set_label('Confirmed cases: ' + str(df['Confirmed'].max()))
+
+        ax.view_init(12, 55)
 
         return plt

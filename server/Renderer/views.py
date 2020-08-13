@@ -21,6 +21,7 @@ covid_visualizer.appendCordinatesIntoDataFrame(countriesList)
 covid_visualizer.visualizeData([])
 covid_visualizer.plotTimeSeries()
 covid_visualizer.generateRadialChart(['China', 'India', 'Ireland'])
+covid_visualizer.generate3DHeatMap(countriesList)
 print('\n\n****** You may now START the Client ******\n\n')
 
 

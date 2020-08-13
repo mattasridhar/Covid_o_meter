@@ -1,3 +1,4 @@
+# imports Statements
 from matplotlib.ticker import FuncFormatter, MaxNLocator
 import shutil
 import pycountry
@@ -22,6 +23,9 @@ from mpl_toolkits.basemap import Basemap
 
 import os
 matplotlib.use('Agg')
+
+# supressing Warnings
+plt.rcParams.update({'figure.max_open_warning': 0})
 
 
 class CovidVisualizer:
@@ -60,6 +64,13 @@ class CovidVisualizer:
         self.radialDataset = self.covid19_dataset
         self.radialDataset = self.radialDataset.set_index('Date')
 
+        self.heat3DDataset = self.covid19_dataset
+
+        self.stackedDataset = self.covid19_dataset
+
+        self.scatterDataset = self.covid19_dataset
+        self.scatterDataset = self.covid19_dataset.set_index('Date')
+
         # Checking and creating folder structure for saving plots
         self.imagesDir = self.currentPath + '/assets/images'
         self.animationDir = self.currentPath + '/assets/animation'
@@ -70,6 +81,7 @@ class CovidVisualizer:
             os.mkdir(self.animationDir)
             print('Animation Directory created.')
 
+    # Iterate the Data rows and gather the List of Countries
     def getCountriesList(self):
         # Data Cleaning. Replacing 'Blanks with No_country'
         self.covid19_dataset['Country'] = self.covid19_dataset['Country'].fillna(
@@ -137,7 +149,7 @@ class CovidVisualizer:
         print('Fetching Co-ordinates for countries completed! \n')
 
     # Plot the Data on Map
-    def getMappedPlot(self, covid_to_plot, date, processed_image_name='', caseType='Confirmed'):
+    def getMappedPlot(self, covid_to_plot, date, processed_image_name, caseType='Confirmed'):
         fig_dimension = 96
         plt.figure(figsize=(2600/fig_dimension, 1800 /
                             fig_dimension), dpi=fig_dimension)
@@ -165,11 +177,7 @@ class CovidVisualizer:
         plt.text(0.5, 0.5, '[Plot not to scale*]',
                  horizontalalignment='right', verticalalignment='top')
 
-        if processed_image_name != '':
-            plt.savefig(processed_image_name, bbox_inches='tight',
-                        pad_inches=0)
-
-        # plt.show()
+        plt.savefig(processed_image_name, bbox_inches='tight', pad_inches=0)
 
     # Create the Gif using the PNG images created
     def generateGif(self, imageFilenames, gifFilename):
@@ -315,7 +323,7 @@ class CovidVisualizer:
 
         print('Time Series Plotting Completed.')
 
-    # Iterate through the countries list and create a Radial plot gif for each country
+    # Iterate through the countries list and generate a Radial plot gif for each country
     def generateRadialChart(self, countriesList):
         print('Initiated Creation of Radial Chart Plot.')
         for countryName in countriesList:
@@ -458,12 +466,10 @@ class CovidVisualizer:
         self.covid19_dataset['TransformedDate'] = transformedDate_list
         print('Appending additional information required for 3D Heat map for countries completed! \n')
 
-    # 3D plot for each category across all countries
+    # Generate the 3D plot for each category across all countries
     def generate3DHeatMap(self, countriesList):
         self.append3DCodesIntoDataFrame(countriesList)
-        self.heat3DDataset = self.covid19_dataset
-        self.heat3DDataset = self.heat3DDataset.set_index('Date')
-        # self.heat3DDataset = self.heat3DDataset.set_index('CountryCode')
+        self.heat3DDataset = self.covid19_dataset.set_index('Date')
 
         self.processed_image_count = 0
         self.image_filename_list = []
@@ -568,12 +574,11 @@ class CovidVisualizer:
 
         return plt
 
-    # Plot the 3 cases for all dates across different Countries
+    # Generate the 3 cases for all dates across different Countries
     def generateStackedArea(self, countriesList):
         self.append3DCodesIntoDataFrame(countriesList)
         self.processed_image_count = 0
         self.image_filename_list = []
-        self.stackedDataset = self.covid19_dataset
         self.stackedDataset = self.stackedDataset.set_index('Date')
 
         # Removing all entries without country codes
@@ -608,6 +613,7 @@ class CovidVisualizer:
 
         print('Stack Map Plotting Completed.')
 
+    # Plot the Data over Scatter Map
     def createStackMap(self, covid_record, endDate, confirmMin, confirmMax, ccMin, ccMax):
         countryCodeList = []
         countryLabel = []
@@ -641,9 +647,9 @@ class CovidVisualizer:
             'Deaths': deathsList
         }
 
-        pal = ["#237DFC", "#44FC23", "#FF6054"]
+        palette = ["#237DFC", "#44FC23", "#FF6054"]
         ax.stackplot(x, covidCases.values(),
-                     labels=covidCases.keys(), colors=pal)
+                     labels=covidCases.keys(), colors=palette)
         ax.legend(loc='upper right')
         ax.set_title('Covid-19 Stacked Plot \n [ Date: ' + str(endDate) + ' ]')
         ax.set_xlabel('Country')
@@ -662,4 +668,81 @@ class CovidVisualizer:
         ax.xaxis.set_major_formatter(FuncFormatter(format_fn))
         ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 
+        return plt
+
+    # Plot the 3 cases onto a 3D Scatter plot
+    def generate3DScatterMap(self):
+        self.processed_image_count = 0
+        self.image_filename_list = []
+
+        for date in self.sorted_dates:
+            endDate = str(date).replace(' 00:00:00', '')
+            covid_record = self.scatterDataset.loc[endDate:endDate]
+
+            plt = self.create3DScatterMap(
+                covid_record, endDate)
+            plt.title(
+                'Covid-19 3D Scatter Plot \n [ Date: ' + endDate + ' ]\n', fontsize=16)
+
+            self.processed_image_count += 1
+            processed_image_name = self.imagesDir + '/sa3D_img_d' + \
+                str(self.processed_image_count) + '.png'
+            self.image_filename_list.append(processed_image_name)
+            plt.savefig(processed_image_name,
+                        bbox_inches='tight', pad_inches=0.5)
+
+        gifFilename = self.animationDir + \
+            '/covid_3dScatterMap_animation.gif'
+        self.generateGif(self.image_filename_list, gifFilename)
+
+        print('3D Scatter Map Plotting Completed.')
+
+    # Plot the data on the graph axis
+    def create3DScatterMap(self, covid_record, endDate):
+        my_dpi = 96
+        plt.figure(figsize=(2600/my_dpi, 1800/my_dpi), dpi=my_dpi)
+        fig = plt.figure()
+        ax = fig.add_subplot(111, projection='3d')
+
+        ax.scatter(covid_record['Recovered'], covid_record['Deaths'],
+                   covid_record['Confirmed'], c=covid_record['Recovered'], cmap='brg', s=60)
+
+        # Cordinates for placing the Axis markers
+        xMidMark = (min(covid_record['Recovered']) + max(
+            covid_record['Recovered']))/2
+
+        yMidMark = (min(covid_record['Deaths']) + max(
+            covid_record['Deaths']))/2
+
+        zMidMark = (min(covid_record['Confirmed']) + max(
+            covid_record['Confirmed']))/2
+
+        # Mid-Air Axis Markers
+        xAxisLine = ((min(covid_record['Recovered']), max(
+            covid_record['Recovered'])), (yMidMark, yMidMark), (zMidMark, zMidMark))
+        ax.plot(xAxisLine[0], xAxisLine[1], xAxisLine[2], 'g')
+
+        yAxisLine = ((xMidMark, xMidMark), (min(covid_record['Deaths']), max(
+            covid_record['Deaths'])), (zMidMark, zMidMark))
+        ax.plot(yAxisLine[0], yAxisLine[1], yAxisLine[2], 'r')
+
+        zAxisLine = ((xMidMark, xMidMark), (yMidMark, yMidMark), (min(
+            covid_record['Confirmed']), max(covid_record['Confirmed'])))
+        ax.plot(zAxisLine[0], zAxisLine[1], zAxisLine[2], 'b')
+
+        ax.set_xlabel("Recovered Cases #", labelpad=8)
+        ax.set_ylabel("Deaths #", labelpad=8)
+        ax.set_zlabel("   Confirmed Cases #", labelpad=6)
+
+        scatter1_proxy = matplotlib.lines.Line2D(
+            [0], [0], linestyle="none", c='blue', marker='o')
+        scatter2_proxy = matplotlib.lines.Line2D(
+            [0], [0], linestyle="none", c='green', marker='o')
+        scatter3_proxy = matplotlib.lines.Line2D(
+            [0], [0], linestyle="none", c='red', marker='o')
+
+        ax.legend([scatter1_proxy, scatter2_proxy, scatter3_proxy],
+                  ['Confirmed # ' + str(covid_record['Confirmed'].sum()), 'Recovered # ' + str(covid_record['Recovered'].sum()), 'Deaths # ' + str(covid_record['Deaths'].sum())], loc='upper right')
+
+        ax.view_init(40, 35)
         return plt

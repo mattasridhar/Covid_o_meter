@@ -24,6 +24,7 @@ covid_visualizer.plotTimeSeries()
 covid_visualizer.generateRadialChart(['China', 'India', 'Ireland'])
 covid_visualizer.generate3DHeatMap(countriesList)
 covid_visualizer.generateStackedArea(countriesList)
+covid_visualizer.generate3DScatterMap()
 print('\n\n****** You may now START the Client ******\n\n')
 # print('\n\n****** You may now START the Client ******\n\n',
 #       json.dumps(covid_visualizer.countryJson))

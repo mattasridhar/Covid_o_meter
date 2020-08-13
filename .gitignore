@@ -34,3 +34,4 @@ server/.DS_Store
 .vscode/.ropeproject/objectdb
 server/assets/images/*.png
 server/assets/covid_animation.gif
+server/assets/animation/*.gif

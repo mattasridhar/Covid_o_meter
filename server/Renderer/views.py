@@ -13,6 +13,7 @@ from PIL import Image
 import base64
 from Renderer.CovidVisualizer import CovidVisualizer
 import os.path
+import json
 
 # Initialize the Covid Visualizer class
 covid_visualizer = CovidVisualizer()
@@ -22,7 +23,10 @@ covid_visualizer.visualizeData([])
 covid_visualizer.plotTimeSeries()
 covid_visualizer.generateRadialChart(['China', 'India', 'Ireland'])
 covid_visualizer.generate3DHeatMap(countriesList)
+covid_visualizer.generateStackedArea(countriesList)
 print('\n\n****** You may now START the Client ******\n\n')
+# print('\n\n****** You may now START the Client ******\n\n',
+#       json.dumps(covid_visualizer.countryJson))
 
 
 @api_view(['POST'])

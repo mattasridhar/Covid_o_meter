@@ -1,3 +1,4 @@
+from matplotlib.ticker import FuncFormatter, MaxNLocator
 import shutil
 import pycountry
 import seaborn as sns
@@ -39,6 +40,9 @@ class CovidVisualizer:
         self.sorted_dates = []
         self.processed_image_count = 0
         self.currentPath = os.getcwd()
+
+        # For sending to client all the Countries and its codes
+        self.countryJson = {}
 
         # Fetching and sorting the data based on Date.
         self.url = 'https://raw.githubusercontent.com/datasets/covid-19/master/data/countries-aggregated.csv'
@@ -407,11 +411,14 @@ class CovidVisualizer:
         self.countriesProcessed_ = 0
         self.datesProcessed_ = 0
         countryCodes = []
+        alphaCodes = []
         transformedDate = []
 
         # Returns the Numeric value of each country
         numericMapping = {
             country.name: country.numeric for country in pycountry.countries}
+        alphaMapping = {
+            country.name: country.alpha_2 for country in pycountry.countries}
 
         for country in countries:
             if self.countriesProcessed_ % 50 == 0:
@@ -419,30 +426,35 @@ class CovidVisualizer:
                       str(self.total_countries - self.countriesProcessed_) + ' Countries.')
 
             codecInfo = numericMapping.get(country)
+            alphaInfo = alphaMapping.get(country)
+            self.countryJson[country] = alphaInfo
             if codecInfo == None:
                 codecInfo = 0
 
             countryCodes.append(int(codecInfo))
+            alphaCodes.append(alphaInfo)
 
             self.countriesProcessed_ += 1
 
         # Setting Day count since the start of Covid
         for date in self.sorted_dates:
             self.datesProcessed_ += 1
-            # self.getTransformedDate(date)
             transformedDateInfo = self.datesProcessed_
             transformedDate.append(transformedDateInfo)
 
         countryCode_list = []
+        countryAlphaCode_list = []
         transformedDate_list = []
         for i, r in self.covid19_dataset.iterrows():
             country = r['Country']
             index_list = self.countries_list.index(country)
             countryCode_list.append(countryCodes[index_list])
+            countryAlphaCode_list.append(alphaCodes[index_list])
             transformedDate_list.append(transformedDate[index_list])
 
         # Adding Co-ordinates back into Data frame
         self.covid19_dataset['CountryCode'] = countryCode_list
+        self.covid19_dataset['CountryAlphaCode'] = countryAlphaCode_list
         self.covid19_dataset['TransformedDate'] = transformedDate_list
         print('Appending additional information required for 3D Heat map for countries completed! \n')
 
@@ -467,7 +479,7 @@ class CovidVisualizer:
             endDate = str(date).replace(' 00:00:00', '')
 
             plt = self.create3DHeatMap(
-                self.heat3DDataset.loc[endDate:endDate], confirmMin, confirmMax)
+                self.heat3DDataset.loc[endDate:endDate], countriesList, confirmMin, confirmMax)
             plt.title(
                 'Covid-19 3D Heat Map Plot \n [ Date: ' + endDate + ' ]\n', fontsize=16)
 
@@ -485,12 +497,31 @@ class CovidVisualizer:
         print('3D HeatMap Plotting Completed.')
 
     # plot the heat map for each date
-    def create3DHeatMap(self, df, confirmMin, confirmMax):
-        fig_dimension = 96
-        plt.figure(figsize=(2600/fig_dimension, 1800 /
-                            fig_dimension), dpi=fig_dimension)
+    def create3DHeatMap(self, df, countriesList, confirmMin, confirmMax):
+        fig_dimension = 196
+
+        xlabelMap = {}
+        ylabelMap = {}
+        countryLabel = []
+        countryCodeList = []
+        transDtList = []
+
+        for i, r in df.iterrows():
+            countryCode = r['CountryCode']
+            countryAlpha = r['CountryAlphaCode']
+            countryName = r['Country']
+            xlabelMap[countryCode] = countryAlpha
+            countryLabel.append(countryAlpha)
+            countryCodeList.append(countryCode)
+            txDt = r['TransformedDate']
+            ylabelMap[i] = txDt
+            transDtList.append(txDt)
+
         fig, ax = plt.subplots()
         ax.axis('equal')
+
+        # Setting this dimension makes the GIF more clear but file-size is too large
+        # fig = plt.figure(figsize=(2600/fig_dimension, 1800 /fig_dimension), dpi=fig_dimension)
 
         fig = plt.figure()
         ax = fig.gca(projection='3d')
@@ -500,16 +531,135 @@ class CovidVisualizer:
 
         ax.axes.set_zlim3d(confirmMin, confirmMax)
 
-        ax.set_title('CasesHere')
-        ax.set_xlabel('\nCountry Codes')
-        ax.set_ylabel('\n# of Covid-19 Days')
-        ax.set_zlabel('\nConfirmed Cases')
+        ax.set_xlabel('Country Codes', fontsize=12, labelpad=8)
+        ax.set_ylabel('# of Covid-19 Days', fontsize=12, labelpad=8)
+        ax.set_zlabel('\tConfirmed Cases', fontsize=12, labelpad=8)
 
         surf = ax.plot_trisurf(df['TransformedDate'], df['CountryCode'],
                                df['Confirmed'], cmap=plt.cm.jet, linewidth=0.2)
         cbar = fig.colorbar(surf, shrink=0.5, aspect=5)
-        cbar.set_label('Confirmed cases: ' + str(df['Confirmed'].max()))
+        cbar.set_label('Confirmed cases: ' +
+                       str(df['Confirmed'].max()), fontsize=12)
 
-        ax.view_init(12, 55)
+        # Uncomment if you want to label the X and Y axes but they fluctute a lot so commented them out to save Memory at transfer
+        """ def xformat_fn(tick_val, tick_pos):
+            try:
+                if int(tick_val) in countryCodeList:
+                    return countryLabel[int(tick_val)]
+                else:
+                    return str(tick_val).replace('.0', '')
+            except:
+                return xlabelMap[int(tick_val)].replace('.0', '')
+        ax.xaxis.set_major_formatter(FuncFormatter(xformat_fn))
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+
+        def yformat_fn(tick_val, tick_pos):
+            try:
+                if int(tick_val) in transDtList:
+                    return transDtList[int(tick_val)]
+                else:
+                    return str(tick_val).replace('.0', '')
+            except:
+                return ylabelMap[int(tick_val)].replace('.0', '')
+        ax.yaxis.set_major_formatter(FuncFormatter(yformat_fn))
+        ax.yaxis.set_major_locator(MaxNLocator(integer=True)) """
+
+        ax.view_init(25, 55)
+
+        return plt
+
+    # Plot the 3 cases for all dates across different Countries
+    def generateStackedArea(self, countriesList):
+        self.append3DCodesIntoDataFrame(countriesList)
+        self.processed_image_count = 0
+        self.image_filename_list = []
+        self.stackedDataset = self.covid19_dataset
+        self.stackedDataset = self.stackedDataset.set_index('Date')
+
+        # Removing all entries without country codes
+        self.stackedDataset = self.stackedDataset[self.stackedDataset.CountryCode != 0]
+
+        # Gather min&max for each axis
+        confirmMin = self.stackedDataset['Confirmed'].min()
+        confirmMax = self.stackedDataset['Confirmed'].max()
+
+        ccMin = self.stackedDataset['CountryCode'].min()
+        ccMax = self.stackedDataset['CountryCode'].max()
+
+        for date in self.sorted_dates:
+            endDate = str(date).replace(' 00:00:00', '')
+            covid_record = self.stackedDataset.loc[endDate:endDate]
+            covid_record = covid_record[['Country', 'CountryAlphaCode', 'Confirmed',
+                                         'Deaths', 'Recovered',
+                                         'CountryCode', 'TransformedDate']]
+            plt = self.createStackMap(
+                covid_record, endDate, confirmMin, confirmMax, ccMin, ccMax)
+
+            self.processed_image_count += 1
+            processed_image_name = self.imagesDir + '/sa_img_' + \
+                str(self.processed_image_count) + '.png'
+            self.image_filename_list.append(processed_image_name)
+            plt.savefig(processed_image_name,
+                        bbox_inches='tight', pad_inches=0.5)
+
+        gifFilename = self.animationDir + \
+            '/covid_StackMap_animation.gif'
+        self.generateGif(self.image_filename_list, gifFilename)
+
+        print('Stack Map Plotting Completed.')
+
+    def createStackMap(self, covid_record, endDate, confirmMin, confirmMax, ccMin, ccMax):
+        countryCodeList = []
+        countryLabel = []
+        confirmedList = []
+        recoveredList = []
+        deathsList = []
+        labelMap = {}
+
+        for i, r in covid_record.iterrows():
+            countryCode = r['CountryCode']
+            countryAlpha = r['CountryAlphaCode']
+            confirmed = r['Confirmed']
+            recovered = r['Recovered']
+            deaths = r['Deaths']
+            countryName = r['Country']
+            labelMap[countryCode] = countryAlpha
+            countryCodeList.append(countryCode)
+            countryLabel.append(countryAlpha)
+            confirmedList.append(confirmed)
+            recoveredList.append(recovered)
+            deathsList.append(deaths)
+
+        # fig.autofmt_xdate()
+        fig, ax = plt.subplots()
+
+        x = countryCodeList
+        y = [confirmedList, recoveredList, deathsList]
+        covidCases = {
+            'Confirmed': confirmedList,
+            'Recovered': recoveredList,
+            'Deaths': deathsList
+        }
+
+        pal = ["#237DFC", "#44FC23", "#FF6054"]
+        ax.stackplot(x, covidCases.values(),
+                     labels=covidCases.keys(), colors=pal)
+        ax.legend(loc='upper right')
+        ax.set_title('Covid-19 Stacked Plot \n [ Date: ' + str(endDate) + ' ]')
+        ax.set_xlabel('Country')
+        ax.set_ylabel('# of Covid cases')
+        ax.set_xlim([ccMin, ccMax])
+        ax.set_ylim([confirmMin, confirmMax])
+
+        def format_fn(tick_val, tick_pos):
+            try:
+                if int(tick_val) in x:
+                    return countryLabel[int(tick_val)]
+                else:
+                    return str(tick_val).replace('.0', '')
+            except:
+                return labelMap[int(tick_val)].replace('.0', '')
+        ax.xaxis.set_major_formatter(FuncFormatter(format_fn))
+        ax.xaxis.set_major_locator(MaxNLocator(integer=True))
 
         return plt

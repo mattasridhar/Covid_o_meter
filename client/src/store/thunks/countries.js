@@ -13,7 +13,7 @@ export const fetchCountriesMap = () => {
   return (dispatch) => {
     dispatch(fetchCountriesMapRequest());
     axios({
-      url: "http://localhost:2393/api/visualize/",
+      url: "http://localhost:2393/api/visualize/worldheatmap/",
       method: "GET",
     })
       .then((response) => {

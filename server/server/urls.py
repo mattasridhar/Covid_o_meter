@@ -23,5 +23,11 @@ urlpatterns = [
     path('countryName/', views.PostCountryName),
     path('api/hello/', views.GetCountryName),
     path('api/countriesList/', views.GetCountriesList),
-    path('api/visualize/', views.GetCovidVisualization),
+    path('api/countriesJson/', views.GetCountriesJSON),
+    path('api/visualize/worldheatmap/', views.GetCovidWorldVisualization),
+    path('api/visualize/timeseries/', views.GetCovidTimeSeriesVisualization),
+    path('api/visualize/radialchart/', views.GetCovidRadialChartVisualization),
+    path('api/visualize/heatmap/', views.GetCovid3dHeatMapVisualization),
+    path('api/visualize/stackedmap/', views.GetCovidStackedAreaVisualization),
+    path('api/visualize/scattermap/', views.GetCovid3dScatterMapVisualization),
 ]

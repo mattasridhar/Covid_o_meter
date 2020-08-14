@@ -5,12 +5,16 @@ import { constants } from "../App/constants";
 // DOM imports
 import uiStyles from "../App/UIStyles";
 import Container from "@material-ui/core/Container";
-import Box from "@material-ui/core/Box";
 
 // Custom component imports
 import Bank from "../Bank/Bank";
 import Settings from "../Settings/Settings";
-import Copyrights from "../Canvas/Copyrights";
+import WorldMapVisualization from "../Bank/WorldMapVisualization";
+import TimeSeriesVisualization from "../Bank/TimeSeriesVisualization";
+import RadialChartVisualization from "../Bank/RadialChartVisualization";
+import HeatMapVisualization from "../Bank/HeatMapVisualization";
+import StackedMapVisualization from "../Bank/StackedMapVisualization";
+import ScatterPlotVisualization from "../Bank/ScatterPlotVisualization";
 
 // Custom components imports
 
@@ -22,6 +26,18 @@ const ContentArea = ({ canvasContext }) => {
     switch (canvasContext) {
       case constants.content.settings:
         return <Settings />;
+      case constants.content.worldMap:
+        return <WorldMapVisualization />;
+      case constants.content.timeSeries:
+        return <TimeSeriesVisualization />;
+      case constants.content.radialChart:
+        return <RadialChartVisualization />;
+      case constants.content.heatMap:
+        return <HeatMapVisualization />;
+      case constants.content.stackedMap:
+        return <StackedMapVisualization />;
+      case constants.content.scatterPlot:
+        return <ScatterPlotVisualization />;
       case constants.content.bank:
       default:
         return <Bank />;
@@ -32,9 +48,6 @@ const ContentArea = ({ canvasContext }) => {
     <>
       <main className={myStyles.content}>
         <div className={myStyles.appBarSpacer} />
-        <Box pt={4}>
-          <Copyrights />
-        </Box>
         <Container maxWidth="lg" className={myStyles.container}>
           {renderCanvas()}
         </Container>

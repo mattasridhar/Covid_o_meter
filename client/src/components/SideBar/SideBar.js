@@ -10,6 +10,12 @@ import ListItemIcon from "@material-ui/core/ListItemIcon";
 import ListItemText from "@material-ui/core/ListItemText";
 import DashboardIcon from "@material-ui/icons/Dashboard";
 import SettingsIcon from "@material-ui/icons/Settings";
+import TimelineIcon from "@material-ui/icons/Timeline";
+import PublicIcon from "@material-ui/icons/Public";
+import TrackChangesIcon from "@material-ui/icons/TrackChanges";
+import FilterHdrIcon from "@material-ui/icons/FilterHdr";
+import GradientIcon from "@material-ui/icons/Gradient";
+import ScatterPlotIcon from "@material-ui/icons/ScatterPlot";
 import Divider from "@material-ui/core/Divider";
 import IconButton from "@material-ui/core/IconButton";
 import ChevronLeftIcon from "@material-ui/icons/ChevronLeft";
@@ -38,6 +44,79 @@ const SideBar = ({ handleSidebarToggling, alterCanvas }) => {
           </ListItemIcon>
           <ListItemText primary={<Localize id="bank" />} />
         </ListItem>
+
+        <ListItem
+          button
+          onClick={() => {
+            alterCanvas(constants.content.worldMap);
+          }}
+        >
+          <ListItemIcon>
+            <PublicIcon />
+          </ListItemIcon>
+          <ListItemText primary={<Localize id="worldMapTitle" />} />
+        </ListItem>
+
+        <ListItem
+          button
+          onClick={() => {
+            alterCanvas(constants.content.timeSeries);
+          }}
+        >
+          <ListItemIcon>
+            <TimelineIcon />
+          </ListItemIcon>
+          <ListItemText primary={<Localize id="timeSeriesTitle" />} />
+        </ListItem>
+
+        <ListItem
+          button
+          onClick={() => {
+            alterCanvas(constants.content.radialChart);
+          }}
+        >
+          <ListItemIcon>
+            <TrackChangesIcon />
+          </ListItemIcon>
+          <ListItemText primary={<Localize id="radialChartTitle" />} />
+        </ListItem>
+
+        <ListItem
+          button
+          onClick={() => {
+            alterCanvas(constants.content.heatMap);
+          }}
+        >
+          <ListItemIcon>
+            <GradientIcon />
+          </ListItemIcon>
+          <ListItemText primary={<Localize id="heatTitle" />} />
+        </ListItem>
+
+        <ListItem
+          button
+          onClick={() => {
+            alterCanvas(constants.content.stackedMap);
+          }}
+        >
+          <ListItemIcon>
+            <FilterHdrIcon />
+          </ListItemIcon>
+          <ListItemText primary={<Localize id="stackedTitle" />} />
+        </ListItem>
+
+        <ListItem
+          button
+          onClick={() => {
+            alterCanvas(constants.content.scatterPlot);
+          }}
+        >
+          <ListItemIcon>
+            <ScatterPlotIcon />
+          </ListItemIcon>
+          <ListItemText primary={<Localize id="scatterPlotTitle" />} />
+        </ListItem>
+
         <ListItem
           button
           onClick={() => {

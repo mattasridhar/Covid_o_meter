@@ -1,3 +1,4 @@
+// DOM imports
 import { makeStyles } from "@material-ui/core/styles";
 
 const uiStyles = makeStyles((theme) => ({
@@ -75,13 +76,47 @@ const uiStyles = makeStyles((theme) => ({
     overflow: "auto",
     flexDirection: "column",
     marginBottom: theme.spacing(3),
+    left: "50%",
+    align: "center",
   },
   fixedHeight: {
-    height: 240,
+    height: 360,
   },
   divider: {
     margin: theme.spacing(2),
     marginBottom: theme.spacing(2, 0),
+  },
+  overlayLoaderBackground: {
+    display: "overlay",
+    position: "fixed",
+    zIndex: 999,
+    left: 0,
+    top: 0,
+    width: "100%",
+    height: "100%",
+    overflow: "auto",
+    backgroundColor: "rgba(0, 0, 0, 0.4)",
+  },
+  overlayLoader: {
+    display: "overlay",
+    position: "fixed",
+    zIndex: 999,
+    left: "35%",
+    top: "22.5%",
+    width: "100%",
+    height: "100%",
+    overflow: "auto",
+  },
+  overlayLoaderTitle: {
+    display: "overlay",
+    position: "fixed",
+    zIndex: 998,
+    left: "15%",
+    top: "40%",
+    width: "100%",
+    height: "100%",
+    overflow: "auto",
+    color: "#FFFFFF",
   },
 }));
 

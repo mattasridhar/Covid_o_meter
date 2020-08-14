@@ -8,9 +8,11 @@ import MenuIcon from "@material-ui/icons/Menu";
 import Typography from "@material-ui/core/Typography";
 import uiStyles from "../App/UIStyles";
 import logo_white from "../App/logo_white.svg";
+import Box from "@material-ui/core/Box";
 
 // Custom component imports
 import Localize from "../../i18n/Localize";
+import Copyrights from "../Canvas/Copyrights";
 
 const TitleBar = ({ toggleSidebar, handleSidebarToggling }) => {
   const myStyles = uiStyles();
@@ -39,6 +41,9 @@ const TitleBar = ({ toggleSidebar, handleSidebarToggling }) => {
           {"  "}
           <img src={logo_white} alt="Covid-logo" />
         </Typography>
+        <Box pt={4}>
+          <Copyrights />
+        </Box>
       </Toolbar>
     </>
   );

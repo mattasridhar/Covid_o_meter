@@ -12,7 +12,7 @@ import Localize from "../../i18n/Localize";
 
 const Copyrights = () => {
   return (
-    <Typography variant="body2" color="textSecondary" align="center">
+    <Typography variant="body2" color="tertiary" align="center">
       <Localize id="copyright" />
       <Link
         color="inherit"

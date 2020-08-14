@@ -79,7 +79,7 @@ INSTALLATION NOTES
 <li> ‘Client Side Installation’ </li>
 	<ul>
 		<li> Navigate into your '/client/' and install the dependencies using the command <br><b>npm install</b> <br></li>
-		<li> Run the application: <b>[from ~/Covid_o_meter/] npm runApp Or yarn runApp <br> Or <br> [from ~/Covid_o_meter/client/] npm start </b></li>
+		<li> Run the application: <b>[from ~/Covid_o_meter/] npm client Or yarn exeApp <br> Or <br> [from ~/Covid_o_meter/client/] npm start </b></li>
 	</ul>
 	</ol>
 

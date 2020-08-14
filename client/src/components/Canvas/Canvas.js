@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { connect } from "react-redux";
 import { useTranslation } from "react-i18next";
-import { ContextPlotImages } from "../App/AppContexts";
+import { ContextPlotData } from "../App/AppContexts";
 import { constants } from "../App/constants";
 
 // DOM imports
@@ -22,18 +22,43 @@ import Localize from "../../i18n/Localize";
 
 // Store imports
 import { fetchCountriesList, fetchCountriesMap } from "../../store";
+import { fetchTimeSeriesMap } from "../../store/thunks/timeseries";
+import { fetchRadialChartMap } from "../../store/thunks/radialchart";
+import { fetchHeatMap } from "../../store/thunks/heatmap";
+import { fetchStackedMap } from "../../store/thunks/stackedmap";
+import { fetchScatterPlot } from "../../store/thunks/scatterplot";
 
 const Canvas = ({
   countriesList,
   countriesMap,
+  timeseriesMap,
+  radialchartMap,
+  heatMap,
+  stackedMap,
+  scatterPlot,
   loading,
+  timeseriesloading,
+  radialchartloading,
+  heatloading,
+  stackedloading,
+  scatterloading,
   fetchCountriesMap,
   fetchCountriesList,
+  fetchTimeSeriesMap,
+  fetchRadialChartMap,
+  fetchHeatMap,
+  fetchStackedMap,
+  fetchScatterPlot,
 }) => {
   const [toggleSidebar, setToggleSidebar] = useState(false);
   const [canvasContext, setCanvasContext] = useState(constants.content.bank);
   const [contextInfo, setContextInfo] = useState({
-    gifData: countriesMap,
+    worldHeatData: countriesMap,
+    timeseriesData: timeseriesMap,
+    radialchartData: radialchartMap,
+    heatData: heatMap,
+    stackedData: stackedMap,
+    scatterplotData: scatterPlot,
   });
   const { i18n } = useTranslation();
 
@@ -44,20 +69,34 @@ const Canvas = ({
 
   // Fetching the plotted information from API
   useEffect(() => {
-    // eslint-disable-next-line
-  }, []);
-  useEffect(() => {
-    // console.log("SRI eff countriesMap Cond: ", countriesMap.length);
     if (countriesMap.length === 0) {
       fetchCountriesMap();
     }
-    // console.log("SRI canvas countriesMap: ", countriesMap);
+    if (timeseriesMap.length === 0) {
+      fetchTimeSeriesMap();
+    }
+    if (radialchartMap.length === 0) {
+      fetchRadialChartMap();
+    }
+    if (heatMap.length === 0) {
+      fetchHeatMap();
+    }
+    if (stackedMap.length === 0) {
+      fetchStackedMap();
+    }
+    if (scatterPlot.length === 0) {
+      fetchScatterPlot();
+    }
     setContextInfo({
-      gifData: countriesMap,
+      worldHeatData: countriesMap,
+      timeseriesData: timeseriesMap,
+      radialchartData: radialchartMap,
+      heatData: heatMap,
+      stackedData: stackedMap,
+      scatterplotData: scatterPlot,
     });
     // eslint-disable-next-line
-  }, [countriesMap]);
-  // console.log("SRI out contextInfo: ", contextInfo);
+  }, [countriesMap, timeseriesMap, radialchartMap, heatMap, stackedMap]);
 
   // custom stlyes
   const customUI_Styles = makeStyles((theme) => ({
@@ -146,7 +185,12 @@ const Canvas = ({
 
   return (
     <>
-      {(loading || contextInfo.gifData.length === 0) && (
+      {((loading &&
+        timeseriesloading &&
+        radialchartloading &&
+        heatloading &&
+        stackedloading) ||
+        contextInfo.worldHeatData.length === 0) && (
         <div className={customStyles.overlayLoaderBackground}>
           <Typography
             component="h3"
@@ -194,9 +238,9 @@ const Canvas = ({
               alterCanvas={alterCanvas}
             />
           </Drawer>
-          <ContextPlotImages.Provider value={contextInfo.gifData}>
+          <ContextPlotData.Provider value={contextInfo}>
             <ContentArea canvasContext={canvasContext} />
-          </ContextPlotImages.Provider>
+          </ContextPlotData.Provider>
         </>
       </div>
     </>
@@ -208,6 +252,16 @@ const mapStateToProps = (state) => {
     countriesMap: state.countriesReducer.countriesMap,
     countriesList: state.countriesReducer.countriesList,
     loading: state.countriesReducer.loading,
+    timeseriesloading: state.timeseriesReducer.timeseriesloading,
+    timeseriesMap: state.timeseriesReducer.timeseriesMap,
+    radialchartloading: state.radialchartReducer.radialchartloading,
+    radialchartMap: state.radialchartReducer.radialchartMap,
+    heatloading: state.heatmapReducer.heatloading,
+    heatMap: state.heatmapReducer.heatMap,
+    stackedloading: state.stackedReducer.stackedloading,
+    stackedMap: state.stackedReducer.stackedMap,
+    scatterloading: state.scatterPlotReducer.scatterloading,
+    scatterPlot: state.scatterPlotReducer.scatterPlot,
   };
 };
 
@@ -215,6 +269,11 @@ const mapDispatchToProps = (dispatch) => {
   return {
     fetchCountriesMap: () => dispatch(fetchCountriesMap()),
     fetchCountriesList: () => dispatch(fetchCountriesList()),
+    fetchTimeSeriesMap: () => dispatch(fetchTimeSeriesMap()),
+    fetchRadialChartMap: () => dispatch(fetchRadialChartMap()),
+    fetchHeatMap: () => dispatch(fetchHeatMap()),
+    fetchStackedMap: () => dispatch(fetchStackedMap()),
+    fetchScatterPlot: () => dispatch(fetchScatterPlot()),
   };
 };
 

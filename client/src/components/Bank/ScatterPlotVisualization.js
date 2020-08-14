@@ -11,17 +11,17 @@ import Localize from "../../i18n/Localize";
 
 // Store imports
 
-export const WorldMapVisualization = ({ myStyles }) => {
+export const ScatterPlotVisualization = ({ myStyles }) => {
   // retrieving already stored Image Information
   const plotData = useContext(ContextPlotData);
-  const plotGifData = plotData.worldHeatData;
+  const plotGifData = plotData.scatterplotData;
 
   return (
     <>
       {plotGifData.length === 0 && (
         <>
           <Typography component="h6" variant="h6" color="inherit" noWrap>
-            <Localize id="loadingWorldMap" />
+            <Localize id="loadingScatterPlot" />
           </Typography>
           <Hourglass color="black" size={50} />
         </>
@@ -30,11 +30,11 @@ export const WorldMapVisualization = ({ myStyles }) => {
         <img
           src={`data:image/jpeg;base64,${plotGifData}`}
           className={myStyles}
-          alt={"WorldMap Gif"}
+          alt={"Scatter Plot Gif"}
         ></img>
       )}
     </>
   );
 };
 
-export default WorldMapVisualization;
+export default ScatterPlotVisualization;

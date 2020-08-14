@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "client": "cd client && npm start",
-    "runApp": "concurrently --kill-others-on-fail \"yarn client\""
+    "exeApp": "concurrently --kill-others-on-fail \"yarn client\""
   },
   "dependencies": {
     "body-parser": "^1.18.3",

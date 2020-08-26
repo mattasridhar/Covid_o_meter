@@ -15,7 +15,7 @@ INTRODUCTION
 <br><br>
 <b>Check out this video to see the demo.</b>
 
-[![](http://img.youtube.com/watch?v=mQy0MgFCfBw/0.jpg)](https://www.youtube.com/watch?v=mQy0MgFCfBw)
+[![](http://img.youtube.com/vi/mQy0MgFCfBw/0.jpg)](https://www.youtube.com/watch?v=mQy0MgFCfBw)
 
 <pre><i>If the above video doesn't seem to work, you can find the same clip of Demo at (~/readme_figs/DemoVideos/CovidOMeterDemo.mp4) location.</i></pre>
 
